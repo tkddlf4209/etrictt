@@ -249,6 +249,7 @@ OCEntityHandlerResult TempResource::post(OC::QueryParamsMap queries, const OC::O
             std::cout << e.what() << std::endl;
         }
     }
+
     return ehResult;
 }
 
@@ -292,7 +293,7 @@ OCEntityHandlerResult TempResource::entityHandler(std::shared_ptr<OC::OCResource
                     ehResult = OC_EH_OK;
                 }
             }
-
+	
             else if (request->getRequestType() == "POST")
             {
                 std::cout <<"TempResource Post Request"<<std::endl;
@@ -321,14 +322,16 @@ OCEntityHandlerResult TempResource::entityHandler(std::shared_ptr<OC::OCResource
                 if (handle_post)
                 {
                     ehResult = post(queries, request->getResourceRepresentation());
+		    
                     if (ehResult == OC_EH_OK)
                     {
                         pResponse->setResourceRepresentation(get(queries), "");
                     }
                     else
                     {
-                        pResponse->setResponseResult(OCEntityHandlerResult::OC_EH_ERROR);
+                        pResponse->setResponseResult(OCEntityHandlerResult::OC_EH_BAD_REQ);
                     }
+		    
                     if (OC_STACK_OK == OCPlatform::sendResponse(pResponse))
                     {
                         if (OC_STACK_OK != sendNotification() )
@@ -338,6 +341,8 @@ OCEntityHandlerResult TempResource::entityHandler(std::shared_ptr<OC::OCResource
                     }
                 }
             }
+	    
+	    
             else
             {
                 std::cout << "TempResource unsupported request type (delete,put,..)"

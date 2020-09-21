@@ -28,7 +28,6 @@ examples_env.AppendUnique(CPPPATH=[
 
 ocf_light_files = [
     'main.cpp',
-    'DeviceServer.cpp',
     'HumiResource.cpp',
     'TempResource.cpp',
     'Platform.cpp',
