@@ -56,7 +56,8 @@
 #define SIZE 256
 #define KEY 1234
 
-struct{
+
+typedef struct{
     long mtype;
     char data[SIZE];
 } msg_data;
@@ -69,9 +70,9 @@ void* recv_queue(void * arg){
     
     //pid = fork();
     pid = 9999;
-    if(pid <0){
-	std::cout << "fork() Error" << std::endl;
-    }
+    //if(pid <0){
+    //	std::cout << "fork() Error" << std::endl;
+    //}
 
     
     msgid = msgget((key_t)KEY,IPC_CREAT|0666);
@@ -79,18 +80,23 @@ void* recv_queue(void * arg){
 	std::cout << "msgget() Error" << std::endl;
     }
 
-    std::cout << "pid = "<< pid << std::endl;
+    //std::cout << "pid = "<< pid << std::endl;
     std::cout << "msgid = "<< msgid << std::endl;
+
+
+    msg_data msg;
+    int msg_size = 0;
+    msg_size = sizeof(msg) - sizeof(msg.mtype);
 
     while(1){
 		
-	if (msgrcv(msgid,&msg_data,SIZE,0,IPC_NOWAIT) > 0){
-	    
-	    std::cout << "msg_data_ mtype = %ld"<< msg_data.mtype << std::endl;
-	    std::cout << "msg_data_  = %s"<< msg_data.data << std::endl;
-	
+	if (msgrcv(msgid,&msg,msg_size,0,0) > 0){
+	//if (msgrcv(msgid,&msg,msg_size,0,IPC_NOWAIT) > 0){
+	    std::cout << "msg_data_ mtype :"<< msg.mtype << std::endl;
+	    std::cout << "msg_data_ :"<< std::string(msg.data) << std::endl;
+
 	}
-	sleep(1);
+	//sleep(1);
     }
 }
 
