@@ -95,7 +95,8 @@ public:
     // Set of strings for each of device info fields
     std::string  deviceName = "Etri CTT Test Device";
     //std::string  deviceType = "oic.d.refrigerator";
-    std::string  deviceType = "oic.d.foodprobe";
+    //std::string  deviceType = "oic.d.foodprobe";
+    std::string  deviceType = "oic.d.sensor";
     std::string  specVersion = "ocf.1.1.0";
     std::vector<std::string> dataModelVersions;
 };

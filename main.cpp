@@ -28,6 +28,11 @@
 #include <windows.h>
 #endif
 
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+
 #include <unistd.h>
 #include <pthread.h>
 #include <wiringPi.h>
@@ -35,7 +40,7 @@
 
 #include "Platform.h"
 #include "DeviceServer.h"
-//#include "HumiResource.h"
+#include "HumiResource.h"
 #include "TempResource.h"
 
 //#include "BinarySwitchResource.h"
@@ -139,6 +144,14 @@ int main(void)
     }
 
 
+    HumiResource h;
+    result = h.registerResource();
+
+    if(result != OC_STACK_OK){
+        std::cout << "Failed to register HUMI resources." << std::endl;
+	return 0;
+    }
+
     int fd = -1;
     fd = wiringPiI2CSetup(SHT_DEVICE_ID);
     
@@ -160,8 +173,11 @@ int main(void)
 	    //std::cout << humi << std::endl;
 	    
 	    //t.setTemp(temp);
+	    h.setHumi(humi);
+	    
 	    t.sendNotification();
-
+	    h.sendNotification();
+	
 
 
 	}

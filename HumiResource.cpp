@@ -33,6 +33,7 @@ namespace PH = std::placeholders;
 HumiResource::HumiResource(std::string resourceUri):
         m_interestedObservers{},
         m_var_value_humi{0},
+        m_var_value_ds_humi{0},
         m_var_value_n{},
         m_var_value_if{},
         m_var_value_rt{}
@@ -44,17 +45,17 @@ HumiResource::HumiResource(std::string resourceUri):
     m_RESOURCE_TYPE[0] = "oic.r.humidity";
     m_RESOURCE_INTERFACE[0] = "oic.if.baseline";
     m_RESOURCE_INTERFACE[1] = "oic.if.a";
-    m_IF_UPDATE[0] = "oic.if.a";
-    m_IF_UPDATE[2] = "oic.if.baseline";
+    m_IF_UPDATE[0] = "oic.if.baseline";
+    m_IF_UPDATE[1] = "oic.if.a";
+    m_var_name_ds_humi ="desiredHumidity";
     m_var_name_humi = "humidity";
-    m_var_name_desired_humidity = "desiredHumidity";
     m_var_name_n = "n";
     m_var_name_if = "if";
     m_var_name_rt = "rt";
 
     // initialize member variables /dimming
-    m_var_value_humi = 0; 
-    m_var_value_desired_humidity = 45;
+    m_var_value_humi = 0;
+    m_var_value_ds_humi =0; 
     m_var_value_n = "";  // current value of property "n"
     // initialize vector if
     m_var_value_if.push_back("oic.if.baseline");
@@ -121,7 +122,7 @@ void HumiResource::setHumi(int humi)
 {
   
         m_var_value_humi = humi;
-        std::cout << "\t\t" << "property 'dimmingSetting': " << m_var_value_humi << std::endl;
+        std::cout << "\t\t" << "property 'humidity': " << m_var_value_humi << std::endl;
     
 }
 
@@ -138,12 +139,25 @@ OCStackResult HumiResource::sendNotification(void)
     return sResult;
 }
 
+OC::OCRepresentation HumiResource::get(const OC::OCRepresentation& rep , OC::QueryParamsMap queries)
+{
+    OC_UNUSED(queries);
+    OC::OCRepresentation result_rep;
+    //if (rep.hasAttribute(m_var_name_humi)){
+    //	result_rep.setValue(m_var_name_humi, m_var_value_humi );
+    //}
+	
+	result_rep.setValue(m_var_name_ds_humi, m_var_value_ds_humi );
+
+    return result_rep;
+}
+
 OC::OCRepresentation HumiResource::get(OC::QueryParamsMap queries)
 {
     OC_UNUSED(queries);
 
     m_rep.setValue(m_var_name_humi, m_var_value_humi );
-    m_rep.setValue(m_var_name_desired_humidity, m_var_value_desired_humidity );
+    m_rep.setValue(m_var_name_ds_humi,m_var_value_ds_humi);
     // m_rep.setValue(m_var_name_n, m_var_value_n );
     m_rep.setValue(m_var_name_if,  m_var_value_if );
     m_rep.setValue(m_var_name_rt,  m_var_value_rt );
@@ -156,55 +170,44 @@ OCEntityHandlerResult HumiResource::post(OC::QueryParamsMap queries, const OC::O
     OCEntityHandlerResult ehResult = OC_EH_OK;
     OC_UNUSED(queries);
 
-    try {
-        if (rep.hasAttribute(m_var_name_humi))
-        {
-            // allocate the variable
-            int value;
-            // get the actual value from the payload
-            rep.getValue(m_var_name_humi, value);
-
-            // value exist in payload
-        }
-    }
-    catch (std::exception& e)
-    {
-        std::cout << e.what() << std::endl;
-    }
-
     if (ehResult == OC_EH_OK)
     {
         // no error: assign the variables
-        try {
+       /* 
+       	try {
             // value exist in payload
             if (rep.getValue(m_var_name_humi, m_var_value_humi ))
             {
-                std::cout << "\t\t" << "property 'dimmingSetting': " << m_var_value_humi << std::endl;
+                std::cout << "\t\t" << "property 'humidity': " << m_var_value_humi << std::endl;
             }
             else
             {
-                std::cout << "\t\t" << "property 'dimmingSetting' not found in the representation" << std::endl;
+                std::cout << "\t\t" << "property 'humidity' not found in the representation" << std::endl;
             }
         }
         catch (std::exception& e)
         {
             std::cout << e.what() << std::endl;
+        }
+	*/
+	try {
+            // value exist in payload
+            if (rep.hasAttribute(m_var_name_ds_humi) && rep.getValue(m_var_name_ds_humi, m_var_value_ds_humi ))
+            {
+                std::cout << "\t\t" << "property 'ds_humidity': " << m_var_value_ds_humi << std::endl;
+            }
+            else
+            {
+                std::cout << "\t\t" << "property 'ds_humidity' not found in the representation" << std::endl;
+            }
         }
 
-        try {
-            if (rep.getValue(m_var_name_n, m_var_value_n ))
-            {
-                std::cout << "\t\t" << "property 'n' : " << m_var_value_n << std::endl;
-            }
-            else
-            {
-                std::cout << "\t\t" << "property 'n' not found in the representation" << std::endl;
-            }
-        }
+
         catch (std::exception& e)
         {
             std::cout << e.what() << std::endl;
         }
+	
 
         try {
             if (rep.hasAttribute(m_var_name_if))
@@ -265,7 +268,9 @@ OCEntityHandlerResult HumiResource::post(OC::QueryParamsMap queries, const OC::O
         {
             std::cout << e.what() << std::endl;
         }
+	
     }
+
     return ehResult;
 }
 
@@ -288,7 +293,11 @@ OCEntityHandlerResult HumiResource::entityHandler(std::shared_ptr<OC::OCResource
         {
             std::cout << "Query key: " << it.first << " value : " << it.second
                     << std::endl;
+
+
         }
+
+
         // get the value, so that we can AND it to check which flags are set
         int requestFlag = request->getRequestHandlerFlag();
 
@@ -309,57 +318,41 @@ OCEntityHandlerResult HumiResource::entityHandler(std::shared_ptr<OC::OCResource
                     ehResult = OC_EH_OK;
                 }
             }
-
+	
             else if (request->getRequestType() == "POST")
             {
-                std::cout <<"HumiResource Post Request"<<std::endl;
-                bool  handle_post = true;
-
-                if (queries.size() > 0)
-                {
-                    for (const auto &eachQuery : queries)
-                    {
-                        std::string key = eachQuery.first;
-                        if (key.compare(INTERFACE_KEY) == 0)
-                        {
-                            std::string value = eachQuery.second;
-                            if (in_updatable_interfaces(value) == false)
-                            {
-                                std::cout << "Update request received via interface: " << value
-                                        << " . This interface is not authorized to update resource!!" << std::endl;
-                                pResponse->setResponseResult(OCEntityHandlerResult::OC_EH_FORBIDDEN);
-                                handle_post = false;
-                                ehResult = OC_EH_ERROR;
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (handle_post)
-                {
-                    ehResult = post(queries, request->getResourceRepresentation());
-                    if (ehResult == OC_EH_OK)
-                    {
-                        pResponse->setResourceRepresentation(get(queries), "");
-                    }
-                    else
-                    {
-                        pResponse->setResponseResult(OCEntityHandlerResult::OC_EH_ERROR);
-                    }
-                    if (OC_STACK_OK == OCPlatform::sendResponse(pResponse))
-                    {
-                        if (OC_STACK_OK != sendNotification() )
-                        {
-                            std::cerr << "NOTIFY failed." << std::endl;
-                        }
-                    }
-                }
+		    std::cout <<"HumiResource Post Request"<<std::endl;
+		    try {
+			
+			ehResult = post(queries, request->getResourceRepresentation());
+			if (request->getResourceRepresentation().hasAttribute(m_var_name_humi)) 
+			{
+                             pResponse->setResponseResult(OCEntityHandlerResult::OC_EH_FORBIDDEN);
+			}
+			//pResponse->setResourceRepresentation(get(request->getResourceRepresentation(),queries), "");
+			pResponse->setResourceRepresentation(get(queries), "");
+		    }
+		    catch (std::exception& e)
+		    {
+			 std::cout << e.what() << std::endl;
+		    }
+		    
+		    if (OC_STACK_OK == OCPlatform::sendResponse(pResponse))
+		    {
+			    if (OC_STACK_OK != sendNotification() )
+			    {
+				std::cerr << "NOTIFY failed." << std::endl;
+			    }
+		    }
             }
+	    
+	    
             else
             {
                 std::cout << "HumiResource unsupported request type (delete,put,..)"
                         << request->getRequestType() << std::endl;
                 pResponse->setResponseResult(OC_EH_ERROR);
+		pResponse->setResourceRepresentation(get(request->getResourceRepresentation(),queries), "");
                 OCPlatform::sendResponse(pResponse);
                 ehResult = OC_EH_ERROR;
             }

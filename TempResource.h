@@ -106,7 +106,7 @@ private:
     std::string m_resourceUri;
     std::string m_RESOURCE_TYPE[1]; // rt value (as an array)
     std::string m_RESOURCE_INTERFACE[2]; // interface if (as an array)
-    std::string m_IF_UPDATE[3]; // updatable interfaces
+    std::string m_IF_UPDATE[2]; // updatable interfaces
     OC::ObservationIds m_interestedObservers;
 
     // member variables for path: /dimming
