@@ -139,18 +139,6 @@ OCStackResult HumiResource::sendNotification(void)
     return sResult;
 }
 
-OC::OCRepresentation HumiResource::get(const OC::OCRepresentation& rep , OC::QueryParamsMap queries)
-{
-    OC_UNUSED(queries);
-    OC::OCRepresentation result_rep;
-    //if (rep.hasAttribute(m_var_name_humi)){
-    //	result_rep.setValue(m_var_name_humi, m_var_value_humi );
-    //}
-	
-	result_rep.setValue(m_var_name_ds_humi, m_var_value_ds_humi );
-
-    return result_rep;
-}
 
 OC::OCRepresentation HumiResource::get(OC::QueryParamsMap queries)
 {
@@ -329,7 +317,6 @@ OCEntityHandlerResult HumiResource::entityHandler(std::shared_ptr<OC::OCResource
 			{
                              pResponse->setResponseResult(OCEntityHandlerResult::OC_EH_FORBIDDEN);
 			}
-			//pResponse->setResourceRepresentation(get(request->getResourceRepresentation(),queries), "");
 			pResponse->setResourceRepresentation(get(queries), "");
 		    }
 		    catch (std::exception& e)
@@ -352,7 +339,6 @@ OCEntityHandlerResult HumiResource::entityHandler(std::shared_ptr<OC::OCResource
                 std::cout << "HumiResource unsupported request type (delete,put,..)"
                         << request->getRequestType() << std::endl;
                 pResponse->setResponseResult(OC_EH_ERROR);
-		pResponse->setResourceRepresentation(get(request->getResourceRepresentation(),queries), "");
                 OCPlatform::sendResponse(pResponse);
                 ehResult = OC_EH_ERROR;
             }

@@ -91,7 +91,6 @@ private:
      * @return OCRepresentaiton with the dimming resource parameters assigned.
      */
     OC::OCRepresentation get(OC::QueryParamsMap queries);
-    OC::OCRepresentation get(const OC::OCRepresentation& rep,OC::QueryParamsMap queries);
 
     /*
      * Parse the payload for the update function (e.g. POST)

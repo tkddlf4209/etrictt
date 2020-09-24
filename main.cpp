@@ -53,6 +53,47 @@
 #define SHT_DEVICE_ID 0x44
 
 
+#define SIZE 256
+#define KEY 1234
+
+struct{
+    long mtype;
+    char data[SIZE];
+} msg_data;
+
+
+int pid;
+int msgid; // queue_id
+void* recv_queue(void * arg){
+  
+    
+    //pid = fork();
+    pid = 9999;
+    if(pid <0){
+	std::cout << "fork() Error" << std::endl;
+    }
+
+    
+    msgid = msgget((key_t)KEY,IPC_CREAT|0666);
+    if(msgid == -1){
+	std::cout << "msgget() Error" << std::endl;
+    }
+
+    std::cout << "pid = "<< pid << std::endl;
+    std::cout << "msgid = "<< msgid << std::endl;
+
+    while(1){
+		
+	if (msgrcv(msgid,&msg_data,SIZE,0,IPC_NOWAIT) > 0){
+	    
+	    std::cout << "msg_data_ mtype = %ld"<< msg_data.mtype << std::endl;
+	    std::cout << "msg_data_  = %s"<< msg_data.data << std::endl;
+	
+	}
+	sleep(1);
+    }
+}
+
 void* startI2C(void * arg){
 
     //DeviceServer *ds = static_cast<DeviceServer*>(arg);    
@@ -92,7 +133,6 @@ void* startI2C(void * arg){
     }*/
 
 }
-
 
 int main(void)
 {
@@ -152,6 +192,16 @@ int main(void)
 	return 0;
     }
 
+
+ 
+    pthread_t threadId;
+    pthread_create(&threadId,NULL,recv_queue,(void *)0);
+    
+
+     
+
+
+
     int fd = -1;
     fd = wiringPiI2CSetup(SHT_DEVICE_ID);
     
@@ -173,7 +223,7 @@ int main(void)
 	    //std::cout << humi << std::endl;
 	    
 	    //t.setTemp(temp);
-	    h.setHumi(humi);
+	    //h.setHumi(humi);
 	    
 	    t.sendNotification();
 	    h.sendNotification();
