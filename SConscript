@@ -28,9 +28,10 @@ examples_env.AppendUnique(CPPPATH=[
 
 ocf_light_files = [
     'main.cpp',
+    'jsoncpp.cpp',
     'HumiResource.cpp',
     'TempResource.cpp',
     'Platform.cpp',
 ]
 
-output = examples_env.Program(ocf_light_files)
+output = examples_env.Program('main',ocf_light_files)

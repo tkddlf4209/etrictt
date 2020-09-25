@@ -43,6 +43,8 @@
 #include "HumiResource.h"
 #include "TempResource.h"
 
+#include "json/json.h"
+
 //#include "BinarySwitchResource.h"
 
 // main application
@@ -88,12 +90,44 @@ void* recv_queue(void * arg){
     int msg_size = 0;
     msg_size = sizeof(msg) - sizeof(msg.mtype);
 
+
+    Json::Value root;
+    Json::Reader reader;
+    
+
     while(1){
 		
-	if (msgrcv(msgid,&msg,msg_size,0,0) > 0){
+	if (msgrcv(msgid,&msg,msg_size,7777,0) > 0){
 	//if (msgrcv(msgid,&msg,msg_size,0,IPC_NOWAIT) > 0){
 	    std::cout << "msg_data_ mtype :"<< msg.mtype << std::endl;
-	    std::cout << "msg_data_ :"<< std::string(msg.data) << std::endl;
+	    
+
+	    std::string data(msg.data);
+
+
+	    std::cout << "data : "<< data<< std::endl;
+	    
+	    bool success =   reader.parse(data,root);
+
+	    if(!success){
+		std::cout << "json parse Error"<< data << std::endl;
+	    }
+    
+
+	    std::cout << "JSON DATA "<< root["parameter1"] << std::endl;
+
+	    if(root.isMember("parameter1")){
+		std::cout << "@@@@@@@@@@@@@@@ p1"<< std::endl;
+	    }
+	    
+	    if(root.isMember("parameter5")){
+		std::cout << "@@@@@@@@@@@@@@@ p5"<< std::endl;
+	    }
+
+	    /*for( int i = 0 ; i < root.size(); i++){
+		std::cout << root[i] << std::endl;
+	    }*/
+	    //std::cout << "msg_data_ :"<< data << std::endl;
 
 	}
 	//sleep(1);
